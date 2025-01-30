@@ -32,8 +32,8 @@ pub mod nft_staking {
         _stake(&mut ctx)
     }
 
-    pub fn unstake(ctx: Context<UnstakeAccounts>) -> Result<()> {
-        _unstake(&ctx)
+    pub fn unstake(mut ctx: Context<UnstakeAccounts>) -> Result<()> {
+        _unstake(&mut ctx)
     }
 
     pub fn claim(mut ctx: Context<ClaimAccounts>) -> Result<()> {

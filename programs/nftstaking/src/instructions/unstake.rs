@@ -68,7 +68,7 @@ pub fn revoke_delegation(ctx: &Context<UnstakeAccounts>) -> Result<()> {
     revoke(cpi_ctx)
 }
 
-pub fn _unstake(ctx: &Context<UnstakeAccounts>) -> Result<()> {
+pub fn _unstake(ctx: &mut Context<UnstakeAccounts>) -> Result<()> {
     let days_since_stake = get_days_since_stake(&ctx.accounts.stake_account);
 
     require!(
@@ -77,7 +77,8 @@ pub fn _unstake(ctx: &Context<UnstakeAccounts>) -> Result<()> {
     );
 
     let points = get_points_earned(days_since_stake, ctx.accounts.config.points_per_stake);
-    ctx.accounts
+    ctx.accounts.user_account.points = ctx
+        .accounts
         .user_account
         .points
         .checked_add(points)
@@ -86,7 +87,8 @@ pub fn _unstake(ctx: &Context<UnstakeAccounts>) -> Result<()> {
     thaw_nft(ctx)?;
     revoke_delegation(ctx)?;
 
-    ctx.accounts
+    ctx.accounts.user_account.amount_staked = ctx
+        .accounts
         .user_account
         .amount_staked
         .checked_sub(1)
@@ -101,6 +103,7 @@ pub struct UnstakeAccounts<'info> {
     pub user: Signer<'info>,
     #[account(
         mut,
+        close = user,
         seeds = [STAKE_ACCOUNT_SEED_PREFIX, mint.key().as_ref(), config.key().as_ref(), user.key().as_ref()],
         bump
     )]
